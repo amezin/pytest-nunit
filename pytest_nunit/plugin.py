@@ -309,6 +309,9 @@ class NunitXML:
         """Get Log report."""
         reporter = self.node_reporter(report)
         reporter.record_testreport(report)
+
+        self.node_to_module_map[report.nodeid] = report.location[2] if report.location[2] else ParentlessNode
+
         return reporter
 
     def update_testcase_duration(self, report):
@@ -343,11 +346,6 @@ class NunitXML:
             if hasattr(item, "obj") and item.obj:
                 doc = item.obj.__doc__.strip() if item.obj.__doc__ else ""
                 self.node_descriptions[item.nodeid] = doc
-
-            if item.parent:
-                self.node_to_module_map[item.nodeid] = item.parent.nodeid
-            else:  # A parent-less node could happen with some custom test-collection plugins.
-                self.node_to_module_map[item.nodeid] = ParentlessNode
 
     @classmethod
     def _create_module_report(cls, cases):
